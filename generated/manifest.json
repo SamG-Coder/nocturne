@@ -1,0 +1,273 @@
+[
+  {
+    "entry": "initialise",
+    "file": "game",
+    "workgroupSize": [
+      64,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "W",
+      "M",
+      "V",
+      "G",
+      "Brain"
+    ],
+    "uniformBytes": 16
+  },
+  {
+    "entry": "newRun",
+    "file": "game",
+    "workgroupSize": [
+      1,
+      1,
+      1
+    ],
+    "bindings": [
+      "S"
+    ],
+    "uniformBytes": 16
+  },
+  {
+    "entry": "stepWorld",
+    "file": "game",
+    "workgroupSize": [
+      1,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "E",
+      "I",
+      "G"
+    ],
+    "uniformBytes": 16
+  },
+  {
+    "entry": "stepProjectiles",
+    "file": "game",
+    "workgroupSize": [
+      64,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "P"
+    ],
+    "uniformBytes": 16
+  },
+  {
+    "entry": "stepEnemies",
+    "file": "game",
+    "workgroupSize": [
+      64,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "Old",
+      "E",
+      "P",
+      "G",
+      "Brain"
+    ],
+    "uniformBytes": 16
+  },
+  {
+    "entry": "evolvePopulation",
+    "file": "game",
+    "workgroupSize": [
+      1,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "G",
+      "Brain"
+    ],
+    "uniformBytes": 0
+  },
+  {
+    "entry": "recordExperience",
+    "file": "learning",
+    "workgroupSize": [
+      1,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "E",
+      "I",
+      "R",
+      "Brain"
+    ],
+    "uniformBytes": 0
+  },
+  {
+    "entry": "prepareBatch",
+    "file": "learning",
+    "workgroupSize": [
+      32,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "Brain",
+      "R",
+      "Work"
+    ],
+    "uniformBytes": 0
+  },
+  {
+    "entry": "forwardBatch",
+    "file": "learning",
+    "workgroupSize": [
+      32,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "Brain",
+      "W",
+      "Work"
+    ],
+    "uniformBytes": 0
+  },
+  {
+    "entry": "backwardBatch",
+    "file": "learning",
+    "workgroupSize": [
+      32,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "Brain",
+      "W",
+      "Work"
+    ],
+    "uniformBytes": 0
+  },
+  {
+    "entry": "computeGradient",
+    "file": "learning",
+    "workgroupSize": [
+      64,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "Brain",
+      "Work",
+      "Grad"
+    ],
+    "uniformBytes": 0
+  },
+  {
+    "entry": "updateWeights",
+    "file": "learning",
+    "workgroupSize": [
+      64,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "Brain",
+      "Grad",
+      "W",
+      "M",
+      "V"
+    ],
+    "uniformBytes": 0
+  },
+  {
+    "entry": "inferPlayer",
+    "file": "learning",
+    "workgroupSize": [
+      1,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "R",
+      "W",
+      "Brain"
+    ],
+    "uniformBytes": 0
+  },
+  {
+    "entry": "buildTiles",
+    "file": "render",
+    "workgroupSize": [
+      64,
+      1,
+      1
+    ],
+    "bindings": [
+      "S",
+      "E",
+      "P",
+      "Tiles"
+    ],
+    "uniformBytes": 16
+  },
+  {
+    "entry": "renderWorld",
+    "file": "render",
+    "workgroupSize": [
+      8,
+      8,
+      1
+    ],
+    "bindings": [
+      "S",
+      "E",
+      "P",
+      "Tiles",
+      "Pixels"
+    ],
+    "uniformBytes": 16
+  },
+  {
+    "entry": "renderUI",
+    "file": "ui",
+    "workgroupSize": [
+      8,
+      8,
+      1
+    ],
+    "bindings": [
+      "S",
+      "Brain",
+      "I",
+      "Pixels"
+    ],
+    "uniformBytes": 4736
+  },
+  {
+    "entry": "synthAudio",
+    "file": "audio",
+    "workgroupSize": [
+      128,
+      1,
+      1
+    ],
+    "bindings": [
+      "Audio"
+    ],
+    "uniformBytes": 16
+  }
+]

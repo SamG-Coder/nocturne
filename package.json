@@ -1,0 +1,1 @@
+{"name":"nocturne-the-hollow-remembers","version":"1.0.0","private":true,"type":"module","scripts":{"start":"node server.mjs","build":"node tools/compile.mjs","pages":"node tools/package-pages.mjs","test":"node tools/compile.mjs && node --test tests/source.test.mjs"},"engines":{"node":">=20"}}

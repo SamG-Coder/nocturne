@@ -1,0 +1,31 @@
+PASS title initialization
+PASS start and state reset
+PASS WASD movement
+PASS pause freezes simulation
+PASS resume
+PASS scythe damage and kill accounting
+PASS soul pickup grants experience
+PASS level-up opens relic choice
+PASS relic upgrade changes combat stats
+PASS relic transitions consume combat feedback exactly once
+PASS enemy damage reduces player life
+PASS enemy fitness receives actual damage credit
+PASS death ends the run
+PASS restart clears the run
+PASS real online optimizer steps
+PASS weights change during play
+PASS future labels mature from observed motion
+PASS finite weights
+PASS finite optimizer momentum
+PASS finite optimizer variance
+PASS finite training metrics
+PASS finite enemy state
+PASS freeze learning holds weights while gameplay continues
+Gradient maximum absolute error 4.8622e-06
+PASS backprop matches numerical differentiation
+PASS fitness-driven lineage mutation
+METRICS {"steps":279,"observations":613,"neuralMSE":0.00328659,"velocityMSE":0.00635299,"trust":0.367102,"kills":168,"alive":35,"generation":2,"trustedTicks":2850,"peakTrust":0.75}
+PASS finite CUDA-generated sound bank
+PASS sound bank stays inside PCM bounds
+Rendered /mnt/data/nocturne_game.ppm
+Rendered nocturne_relics.ppm

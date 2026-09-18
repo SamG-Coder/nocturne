@@ -1,0 +1,4 @@
+const DB='nocturne-local-memory';
+const open=()=>new Promise((resolve,reject)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('memory');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
+export async function loadMemory(){const db=await open();return new Promise((resolve,reject)=>{const t=db.transaction('memory','readonly');const r=t.objectStore('memory').get('current');r.onsuccess=()=>resolve(r.result??null);r.onerror=()=>reject(r.error);t.oncomplete=()=>db.close();});}
+export async function saveMemory(value){const db=await open();return new Promise((resolve,reject)=>{const t=db.transaction('memory','readwrite');t.objectStore('memory').put(value,'current');t.oncomplete=()=>{db.close();resolve();};t.onerror=()=>{db.close();reject(t.error);};});}
