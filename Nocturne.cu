@@ -421,10 +421,13 @@ __device__ float4 enemyArt(float x,float y,const float* E,int b,float time,float
   }
   return c;
  }
+ if(fabsf(x)>40.0f||y<-52.0f||y>28.0f)return make_float4(0.0f,0.0f,0.0f,0.0f);
  float yy=y+bob;float shade=0.75f+0.16f*noise2(x*0.48f,yy*0.48f)+0.12f*sat(-x/15.0f);
  if(type==1) {
   // Lean, low, four-legged carrion hound.
-  float fx=E[b+2];float fy=E[b+3];float fl=fmaxf(1.0f,len2(fx,fy));fx/=fl;fy/=fl;
+  // A zero velocity used to collapse the facing basis and flood the whole tile with fur.
+  float fx=E[b+2];float fy=E[b+3];float fl=len2(fx,fy);
+  if(fl<8.0f){fx=cosf(E[b+12]);fy=sinf(E[b+12]);}else{fx/=fl;fy/=fl;}
   float rx=x*fx+yy*fy;float ry=-x*fy+yy*fx;
   float body=len2(rx/1.8f,ry)-8.0f;
   c=paint(c,color(0.24f*shade,0.23f*shade,0.21f*shade),ink(body,aa));

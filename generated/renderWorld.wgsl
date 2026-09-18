@@ -393,14 +393,24 @@ fn f_cw_buffer_helper_0(cw_arg_x: f32, cw_arg_y: f32, cw_buffer_arg_2: i32, cw_a
     }
     return v_c;
   }
+  if ((((abs(v_x) > 40.0f) || (v_y < (-52.0f))) || (v_y > 28.0f))) {
+    return vec4<f32>(0.0f, 0.0f, 0.0f, 0.0f);
+  }
   var v_yy: f32 = (v_y + v_bob);
   var v_shade: f32 = ((0.75f + (0.16f * f_noise2((v_x * 0.48f), (v_yy * 0.48f), cw_thread, cw_block, cw_grid))) + (0.12f * f_sat(cw_divide_f32((-v_x), 15.0f), cw_thread, cw_block, cw_grid)));
   if ((v_type == 1i)) {
     var v_fx: f32 = b_E[(cw_buffer_offset_2 + (v_b + 2i))];
     var v_fy: f32 = b_E[(cw_buffer_offset_2 + (v_b + 3i))];
-    var v_fl: f32 = max(1.0f, f_len2(v_fx, v_fy, cw_thread, cw_block, cw_grid));
-    v_fx = cw_divide_f32(v_fx, v_fl);
-    v_fy = cw_divide_f32(v_fy, v_fl);
+    var v_fl: f32 = f_len2(v_fx, v_fy, cw_thread, cw_block, cw_grid);
+    if ((v_fl < 8.0f)) {
+      let cw_argument_index_12 = (cw_buffer_offset_2 + (v_b + 12i));
+      v_fx = cos(b_E[cw_argument_index_12]);
+      let cw_argument_index_13 = (cw_buffer_offset_2 + (v_b + 12i));
+      v_fy = sin(b_E[cw_argument_index_13]);
+    } else {
+      v_fx = cw_divide_f32(v_fx, v_fl);
+      v_fy = cw_divide_f32(v_fy, v_fl);
+    }
     var v_rx: f32 = ((v_x * v_fx) + (v_yy * v_fy));
     var v_ry: f32 = (((-v_x) * v_fy) + (v_yy * v_fx));
     var v_body: f32 = (f_len2(cw_divide_f32(v_rx, 1.8f), v_ry, cw_thread, cw_block, cw_grid) - 8.0f);
@@ -410,27 +420,27 @@ fn f_cw_buffer_helper_0(cw_arg_x: f32, cw_arg_y: f32, cw_buffer_arg_2: i32, cw_a
       var v_k: i32 = 0i;
       loop {
         if (!(v_k < 4i)) { break; }
-        var cw_tmp_12: f32;
-        if (((v_k % 2i) == 0i)) {
-          cw_tmp_12 = (-1.0f);
-        } else {
-          cw_tmp_12 = 1.0f;
-        }
-        var v_side: f32 = cw_tmp_12;
-        var cw_tmp_13: f32;
-        if ((v_k < 2i)) {
-          cw_tmp_13 = (-9.0f);
-        } else {
-          cw_tmp_13 = 7.0f;
-        }
-        var v_leg: f32 = cw_tmp_13;
         var cw_tmp_14: f32;
         if (((v_k % 2i) == 0i)) {
-          cw_tmp_14 = 1.0f;
-        } else {
           cw_tmp_14 = (-1.0f);
+        } else {
+          cw_tmp_14 = 1.0f;
         }
-        var v_step: f32 = ((v_walk * cw_tmp_14) * 3.0f);
+        var v_side: f32 = cw_tmp_14;
+        var cw_tmp_15: f32;
+        if ((v_k < 2i)) {
+          cw_tmp_15 = (-9.0f);
+        } else {
+          cw_tmp_15 = 7.0f;
+        }
+        var v_leg: f32 = cw_tmp_15;
+        var cw_tmp_16: f32;
+        if (((v_k % 2i) == 0i)) {
+          cw_tmp_16 = 1.0f;
+        } else {
+          cw_tmp_16 = (-1.0f);
+        }
+        var v_step: f32 = ((v_walk * cw_tmp_16) * 3.0f);
         v_c = f_paint(v_c, f_color(0.22f, 0.21f, 0.18f, cw_thread, cw_block, cw_grid), f_ink((f_segment(v_rx, v_ry, v_leg, (v_side * 5.0f), (v_leg + v_step), (v_side * 12.0f), cw_thread, cw_block, cw_grid) - 1.5f), v_aa, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
         continuing {
           v_k += i32(1);
@@ -441,26 +451,26 @@ fn f_cw_buffer_helper_0(cw_arg_x: f32, cw_arg_y: f32, cw_buffer_arg_2: i32, cw_a
     v_c = f_paint(v_c, f_color(0.67f, 0.16f, 0.08f, cw_thread, cw_block, cw_grid), f_ink((f_len2((v_rx - 15.0f), (abs(v_ry) - 3.5f), cw_thread, cw_block, cw_grid) - 1.1f), v_aa, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
     v_c = f_paint(v_c, f_color(0.59f, 0.54f, 0.43f, cw_thread, cw_block, cw_grid), f_ink(f_boxd((v_rx - 19.0f), v_ry, 3.0f, 2.0f, cw_thread, cw_block, cw_grid), v_aa, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
   } else {
-    var cw_tmp_16: f32;
+    var cw_tmp_18: f32;
     if ((v_type == 3i)) {
-      cw_tmp_16 = 17.0f;
+      cw_tmp_18 = 17.0f;
     } else {
-      var cw_tmp_15: f32;
+      var cw_tmp_17: f32;
       if ((v_type == 4i)) {
-        cw_tmp_15 = 9.0f;
+        cw_tmp_17 = 9.0f;
       } else {
-        cw_tmp_15 = 11.0f;
+        cw_tmp_17 = 11.0f;
       }
-      cw_tmp_16 = cw_tmp_15;
+      cw_tmp_18 = cw_tmp_17;
     }
-    var v_width: f32 = cw_tmp_16;
-    var cw_tmp_17: f32;
+    var v_width: f32 = cw_tmp_18;
+    var cw_tmp_19: f32;
     if ((v_type == 3i)) {
-      cw_tmp_17 = (-34.0f);
+      cw_tmp_19 = (-34.0f);
     } else {
-      cw_tmp_17 = (-29.0f);
+      cw_tmp_19 = (-29.0f);
     }
-    var v_top: f32 = cw_tmp_17;
+    var v_top: f32 = cw_tmp_19;
     var v_step: f32 = ((v_walk * v_moving) * 3.5f);
     v_c = f_paint(v_c, f_color(0.13f, 0.13f, 0.12f, cw_thread, cw_block, cw_grid), f_ink((f_segment(v_x, v_yy, (-5.0f), (-4.0f), (-7.0f), (3.0f + v_step), cw_thread, cw_block, cw_grid) - 3.0f), v_aa, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
     v_c = f_paint(v_c, f_color(0.16f, 0.16f, 0.14f, cw_thread, cw_block, cw_grid), f_ink((f_segment(v_x, v_yy, 5.0f, (-4.0f), 7.0f, (3.0f - v_step), cw_thread, cw_block, cw_grid) - 3.0f), v_aa, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
@@ -478,13 +488,13 @@ fn f_cw_buffer_helper_0(cw_arg_x: f32, cw_arg_y: f32, cw_buffer_arg_2: i32, cw_a
     v_c = f_paint(v_c, v_cloth, f_ink(v_body, v_aa, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
     var v_seam: f32 = (f_ink((abs((v_x - (sin((v_yy * 0.19f)) * 2.0f))) - 0.6f), v_aa, cw_thread, cw_block, cw_grid) * f_ink((v_body + 1.0f), v_aa, cw_thread, cw_block, cw_grid));
     v_c = f_paint(v_c, f_color(0.095f, 0.1f, 0.087f, cw_thread, cw_block, cw_grid), v_seam, cw_thread, cw_block, cw_grid);
-    var cw_tmp_18: f32;
+    var cw_tmp_20: f32;
     if ((b_E[(cw_buffer_offset_2 + (v_b + 8i))] == 4.0f)) {
-      cw_tmp_18 = 8.0f;
+      cw_tmp_20 = 8.0f;
     } else {
-      cw_tmp_18 = 0.0f;
+      cw_tmp_20 = 0.0f;
     }
-    var v_swing: f32 = cw_tmp_18;
+    var v_swing: f32 = cw_tmp_20;
     v_c = f_paint(v_c, (v_cloth * vec4<f32>(0.85f)), f_ink((f_segment(v_x, v_yy, ((-v_width) + 2.0f), (-22.0f), (((-v_width) - 5.0f) - v_swing), ((-5.0f) + v_step), cw_thread, cw_block, cw_grid) - 3.0f), v_aa, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
     v_c = f_paint(v_c, (v_cloth * vec4<f32>(1.2f)), f_ink((f_segment(v_x, v_yy, (v_width - 2.0f), (-22.0f), ((v_width + 4.0f) + v_swing), ((-7.0f) - v_step), cw_thread, cw_block, cw_grid) - 3.0f), v_aa, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
     var v_head: f32 = (f_len2((v_x * 0.92f), (v_yy - (v_top + 2.0f)), cw_thread, cw_block, cw_grid) - 7.6f);
@@ -495,13 +505,13 @@ fn f_cw_buffer_helper_0(cw_arg_x: f32, cw_arg_y: f32, cw_buffer_arg_2: i32, cw_a
     }
     v_c = f_paint(v_c, f_color(0.09f, 0.079f, 0.062f, cw_thread, cw_block, cw_grid), f_ink(f_boxd(v_x, (v_yy - (v_top + 5.0f)), 4.8f, 2.2f, cw_thread, cw_block, cw_grid), v_aa, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
     var v_eye: f32 = f_ink((f_len2((abs(v_x) - 2.9f), (v_yy - (v_top + 3.0f)), cw_thread, cw_block, cw_grid) - 0.95f), v_aa, cw_thread, cw_block, cw_grid);
-    var cw_tmp_19: vec4<f32>;
+    var cw_tmp_21: vec4<f32>;
     if ((v_type == 4i)) {
-      cw_tmp_19 = f_color(0.46f, 0.8f, 0.72f, cw_thread, cw_block, cw_grid);
+      cw_tmp_21 = f_color(0.46f, 0.8f, 0.72f, cw_thread, cw_block, cw_grid);
     } else {
-      cw_tmp_19 = f_color(0.83f, 0.27f, 0.13f, cw_thread, cw_block, cw_grid);
+      cw_tmp_21 = f_color(0.83f, 0.27f, 0.13f, cw_thread, cw_block, cw_grid);
     }
-    v_c = f_paint(v_c, cw_tmp_19, v_eye, cw_thread, cw_block, cw_grid);
+    v_c = f_paint(v_c, cw_tmp_21, v_eye, cw_thread, cw_block, cw_grid);
     if (((v_type == 0i) || (v_type == 3i))) {
       {
         var v_k: i32 = 0i;
@@ -556,9 +566,9 @@ fn f_cw_buffer_helper_1(cw_arg_x: f32, cw_arg_y: f32, cw_buffer_arg_2: i32, cw_a
     return vec4<f32>(0.0f, 0.0f, 0.0f, 0.0f);
   }
   var v_time: f32 = b_S[(cw_buffer_offset_2 + 6i)];
-  let cw_argument_index_20 = (cw_buffer_offset_2 + 2i);
-  let cw_argument_index_21 = (cw_buffer_offset_2 + 3i);
-  var v_walk: f32 = (sin((v_time * 13.0f)) * f_sat(cw_divide_f32(f_len2(b_S[cw_argument_index_20], b_S[cw_argument_index_21], cw_thread, cw_block, cw_grid), 130.0f), cw_thread, cw_block, cw_grid));
+  let cw_argument_index_22 = (cw_buffer_offset_2 + 2i);
+  let cw_argument_index_23 = (cw_buffer_offset_2 + 3i);
+  var v_walk: f32 = (sin((v_time * 13.0f)) * f_sat(cw_divide_f32(f_len2(b_S[cw_argument_index_22], b_S[cw_argument_index_23], cw_thread, cw_block, cw_grid), 130.0f), cw_thread, cw_block, cw_grid));
   var v_yy: f32 = (v_y + (abs(v_walk) * 1.0f));
   var v_c: vec4<f32> = vec4<f32>(0.0f, 0.0f, 0.0f, 0.0f);
   v_c = f_paint(v_c, f_color(0.16f, 0.17f, 0.16f, cw_thread, cw_block, cw_grid), f_ink((f_segment(v_x, v_yy, (-5.0f), (-5.0f), (-7.0f), (4.0f + (v_walk * 3.0f)), cw_thread, cw_block, cw_grid) - 3.0f), v_aa, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
