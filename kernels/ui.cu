@@ -87,7 +87,6 @@ __global__ void renderUI(const float* S,const float* Brain,const float* I,unsign
   int status=S[45]<0.5f?18:(Brain[0]<1.0f?16:17);
   c=label(c,x,y,vw-203.0f,657.0f,status,1.2f,gold);c=label(c,x,y,vw-203.0f,678.0f,19,1.0f,dim);
   c=number(c,x,y,vw-144.0f,678.0f,(int)fmaxf(1.0f,Brain[13]),2,1.0f,ivory);
-  // Cursor is drawn in CUDA too; system cursor is hidden once WebGPU is ready.
   if(mode==1){float d=fabsf(len2(x-mouseX,y-mouseY)-6.0f)-0.55f;c=blend(c,ivory,ink(d,1.0f)*0.65f);}
  }
  if(mode==0){

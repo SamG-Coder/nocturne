@@ -632,10 +632,6 @@ fn main(
   var v_ground: f32 = f_noise2((v_wx * 0.018f), (v_wy * 0.018f), cw_thread, cw_block, cw_grid);
   var v_detail: f32 = f_noise2((v_wx * 0.23f), (v_wy * 0.23f), cw_thread, cw_block, cw_grid);
   var v_c: vec4<f32> = f_color((0.071f + (v_ground * 0.035f)), (0.091f + (v_ground * 0.041f)), (0.092f + (v_ground * 0.038f)), cw_thread, cw_block, cw_grid);
-  var v_stone: f32 = f_smooth01(1.0f, 0.0f, ((f_noise2((v_wx * 0.008f), (v_wy * 0.008f), cw_thread, cw_block, cw_grid) * 1.7f) - 0.1f), cw_thread, cw_block, cw_grid);
-  if ((v_radial < 250.0f)) {
-    v_stone = 1.0f;
-  }
   var v_row: f32 = floor(cw_divide_f32(v_wy, 33.0f));
   var v_tx: f32 = f_frac(cw_divide_f32((v_wx + ((v_row - (floor(cw_divide_f32(v_row, 2.0f)) * 2.0f)) * 28.0f)), 57.0f), cw_thread, cw_block, cw_grid);
   var v_ty: f32 = f_frac(cw_divide_f32(v_wy, 33.0f), cw_thread, cw_block, cw_grid);
@@ -644,7 +640,13 @@ fn main(
   var v_paving: vec4<f32> = f_color((0.13f + (v_stoneNoise * 0.028f)), (0.151f + (v_stoneNoise * 0.033f)), (0.149f + (v_stoneNoise * 0.035f)), cw_thread, cw_block, cw_grid);
   v_paving = (v_paving * vec4<f32>((0.65f + (v_detail * 0.43f))));
   v_paving = f_blend(f_color(0.042f, 0.052f, 0.052f, cw_thread, cw_block, cw_grid), v_paving, f_smooth01(0.0f, 1.4f, v_joint, cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
-  v_c = f_blend(v_c, v_paving, (v_stone * 0.78f), cw_thread, cw_block, cw_grid);
+  var v_stone: f32 = 1.0f;
+  if ((v_radial > 230.0f)) {
+    var v_broken: f32 = f_smooth01(0.86f, 0.94f, v_stoneNoise, cw_thread, cw_block, cw_grid);
+    var v_mud: f32 = f_smooth01(0.84f, 0.96f, f_noise2(((v_wx * 0.05f) + 3.1f), (v_wy * 0.05f), cw_thread, cw_block, cw_grid), cw_thread, cw_block, cw_grid);
+    v_stone = (1.0f - max(v_broken, (v_mud * 0.5f)));
+  }
+  v_c = f_blend(v_c, v_paving, v_stone, cw_thread, cw_block, cw_grid);
   var v_crack: f32 = abs((f_noise2((v_wx * 0.055f), (v_wy * 0.055f), cw_thread, cw_block, cw_grid) - 0.5f));
   v_c = f_blend(v_c, f_color(0.043f, 0.05f, 0.047f, cw_thread, cw_block, cw_grid), ((f_ink((v_crack - 0.008f), 0.007f, cw_thread, cw_block, cw_grid) * v_stone) * 0.65f), cw_thread, cw_block, cw_grid);
   var v_blade: f32 = f_frac(((v_wx * 0.19f) + (floor((v_wy * 0.25f)) * 0.74f)), cw_thread, cw_block, cw_grid);

@@ -541,14 +541,20 @@ __global__ void renderWorld(const float* S,const float* E,const float* P,const i
  float pd=len2(wx-S[0],wy-S[1]);float radial=len2(wx,wy);
  float ground=noise2(wx*0.018f,wy*0.018f);float detail=noise2(wx*0.23f,wy*0.23f);
  float4 c=color(0.071f+ground*0.035f,0.091f+ground*0.041f,0.092f+ground*0.038f);
- float stone=smooth01(1.0f,0.0f,noise2(wx*0.008f,wy*0.008f)*1.7f-0.1f);
- if(radial<250.0f)stone=1.0f;
  float row=floorf(wy/33.0f);float tx=frac((wx+((row-floorf(row/2.0f)*2.0f))*28.0f)/57.0f);float ty=frac(wy/33.0f);
  float joint=fminf(fminf(tx,1.0f-tx)*57.0f,fminf(ty,1.0f-ty)*33.0f);
  float stoneNoise=h2(floorf((wx+(row-floorf(row/2.0f)*2.0f)*28.0f)/57.0f),row);
  float4 paving=color(0.13f+stoneNoise*0.028f,0.151f+stoneNoise*0.033f,0.149f+stoneNoise*0.035f);
- paving=paving*(0.65f+detail*0.43f);paving=blend(color(0.042f,0.052f,0.052f),paving,smooth01(0.0f,1.4f,joint));c=blend(c,paving,stone*0.78f);
- // Cracked flagstones and short wet grass occupy different materials.
+ paving=paving*(0.65f+detail*0.43f);paving=blend(color(0.042f,0.052f,0.052f),paving,smooth01(0.0f,1.4f,joint));
+ // Coarse value-noise used to punch 125-unit rectangles of dirt through the paving.
+ // Missing ground is now whole flagstones and small mud, never a screen-aligned slab.
+ float stone=1.0f;
+ if(radial>230.0f){
+  float broken=smooth01(0.86f,0.94f,stoneNoise);
+  float mud=smooth01(0.84f,0.96f,noise2(wx*0.05f+3.1f,wy*0.05f));
+  stone=1.0f-fmaxf(broken,mud*0.5f);
+ }
+ c=blend(c,paving,stone);
  float crack=fabsf(noise2(wx*0.055f,wy*0.055f)-0.5f);c=blend(c,color(0.043f,0.050f,0.047f),ink(crack-0.008f,0.007f)*stone*0.65f);
  float blade=frac(wx*0.19f+floorf(wy*0.25f)*0.74f);float grass=ink(fabsf(blade-0.5f)-0.07f,0.07f)*smooth01(0.60f,0.83f,detail)*(1.0f-stone);
  c=blend(c,color(0.17f,0.185f,0.13f),grass*0.65f);
@@ -752,7 +758,6 @@ __global__ void renderUI(const float* S,const float* Brain,const float* I,unsign
   int status=S[45]<0.5f?18:(Brain[0]<1.0f?16:17);
   c=label(c,x,y,vw-203.0f,657.0f,status,1.2f,gold);c=label(c,x,y,vw-203.0f,678.0f,19,1.0f,dim);
   c=number(c,x,y,vw-144.0f,678.0f,(int)fmaxf(1.0f,Brain[13]),2,1.0f,ivory);
-  // Cursor is drawn in CUDA too; system cursor is hidden once WebGPU is ready.
   if(mode==1){float d=fabsf(len2(x-mouseX,y-mouseY)-6.0f)-0.55f;c=blend(c,ivory,ink(d,1.0f)*0.65f);}
  }
  if(mode==0){
