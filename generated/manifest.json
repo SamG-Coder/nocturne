@@ -225,6 +225,20 @@
     "uniformBytes": 16
   },
   {
+    "entry": "renderGround",
+    "file": "render",
+    "workgroupSize": [
+      8,
+      8,
+      1
+    ],
+    "bindings": [
+      "S",
+      "Pixels"
+    ],
+    "uniformBytes": 16
+  },
+  {
     "entry": "renderWorld",
     "file": "render",
     "workgroupSize": [

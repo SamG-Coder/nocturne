@@ -5,7 +5,7 @@ const check=(ok,s)=>{if(!ok)throw Error(s);say('PASS '+s);};
 document.querySelector('#go').onclick=async function(){this.disabled=true;let e;
  try{
   e=await new Engine(document.querySelector('canvas')).init((s)=>{document.title=s;},{width:640,height:360,onError:x=>say('GPU ERROR: '+x.message)});
-  say(JSON.stringify(e.info,null,2));check(e.errors.length===0,'all 17 WGSL modules and pipelines validate on this GPU');
+  say(JSON.stringify(e.info,null,2));check(e.errors.length===0,'all 18 WGSL modules and pipelines validate on this GPU');
   const step=async(n=1)=>{e.writeInput();e.frame(n,false);await e.runtime.idle();};
   e.input[8]=1;await step();e.input[8]=0;await step();check((await e.state())[8]===1,'begin a run');
   const start=(await e.state())[0];e.input[0]=1;for(let k=0;k<8;k++)await step(4);check((await e.state())[0]>start+60,'CUDA movement');

@@ -50,6 +50,7 @@ struct Simulation {
  void render(const std::string&file,int width=1280,int height=720){
   std::vector<int>tiles(((width+31)/32)*((height+31)/32)*TILE_CAP);std::vector<unsigned int>pixels(width*height);
   dispatch1(((width+31)/32)*((height+31)/32),[&]{buildTiles(S.data(),E.data(),P.data(),tiles.data(),width,height);});
+  dispatch2(width,height,[&]{renderGround(S.data(),pixels.data(),width,height);});
   dispatch2(width,height,[&]{renderWorld(S.data(),E.data(),P.data(),tiles.data(),pixels.data(),width,height);});
   dispatch2(width,height,[&]{renderUI(S.data(),Brain.data(),I.data(),pixels.data(),width,height);});
   std::ofstream o(file,std::ios::binary);o<<"P6\n"<<width<<" "<<height<<"\n255\n";for(auto p:pixels){char b[3]={char(p&255),char((p>>8)&255),char((p>>16)&255)};o.write(b,3);}std::cout<<"Rendered "<<file<<"\n";

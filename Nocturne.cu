@@ -515,10 +515,11 @@ __device__ float4 playerArt(float x,float y,const float* S,float aa) {
 __global__ void buildTiles(const float* S,const float* E,const float* P,int* Tiles,int width,int height) {
  int id=(int)(blockIdx.x*blockDim.x+threadIdx.x);int tw=(width+31)/32;int th=(height+31)/32;if(id>=tw*th)return;
  int b=id*TILE_CAP;int count=0;float cx=(float)(id%tw*TILE+TILE/2);float cy=(float)(id/tw*TILE+TILE/2);float zoom=(float)height/700.0f;
+ float reach=42.0f*zoom+16.0f;
  // Living units first so a crowded tile drops corpses, not bodies.
  for(int i=0;i<ENEMIES;i++)if(E[i*ES+4]>0.0f){
   float sx=(E[i*ES]-S[25])*zoom+(float)width*0.5f;float sy=(E[i*ES+1]-S[26])*zoom+(float)height*0.5f;
-  if(fabsf(sx-cx)<70.0f*zoom+16.0f&&fabsf(sy-18.0f*zoom-cy)<80.0f*zoom+16.0f&&count<TILE_CAP-1){Tiles[b+1+count]=i;count++;}
+  if(fabsf(sx-cx)<reach&&fabsf(sy-16.0f*zoom-cy)<reach+10.0f*zoom&&count<TILE_CAP-1){Tiles[b+1+count]=i;count++;}
  }
  for(int i=0;i<BULLETS;i++)if(P[i*BS+6]>0.0f){
   float sx=(P[i*BS]-S[25])*zoom+(float)width*0.5f;float sy=(P[i*BS+1]-S[26])*zoom+(float)height*0.5f;
@@ -530,13 +531,15 @@ __global__ void buildTiles(const float* S,const float* E,const float* P,int* Til
  }
  for(int i=0;i<ENEMIES;i++)if(E[i*ES+4]<0.0f){
   float sx=(E[i*ES]-S[25])*zoom+(float)width*0.5f;float sy=(E[i*ES+1]-S[26])*zoom+(float)height*0.5f;
-  if(fabsf(sx-cx)<70.0f*zoom+16.0f&&fabsf(sy-18.0f*zoom-cy)<80.0f*zoom+16.0f&&count<TILE_CAP-1){Tiles[b+1+count]=i;count++;}
+  if(fabsf(sx-cx)<reach&&fabsf(sy-16.0f*zoom-cy)<reach+10.0f*zoom&&count<TILE_CAP-1){Tiles[b+1+count]=i;count++;}
  }
  Tiles[b]=count;
 }
-__global__ void renderWorld(const float* S,const float* E,const float* P,const int* Tiles,unsigned int* Pixels,int width,int height) {
+// Floor is a cheap pass of its own. A single fat kernel was dropping a
+// screen-centered rectangle of dirt wherever the sprite list got long.
+__global__ void renderGround(const float* S,unsigned int* Pixels,int width,int height) {
  int ix=(int)(blockIdx.x*blockDim.x+threadIdx.x);int iy=(int)(blockIdx.y*blockDim.y+threadIdx.y);if(ix>=width||iy>=height)return;
- float zoom=(float)height/700.0f;float aa=1.1f/zoom;float time=S[46];float gameTime=S[6];
+ float zoom=(float)height/700.0f;float aa=1.1f/zoom;float time=S[46];
  float wx=((float)ix-(float)width*0.5f)/zoom+S[25];float wy=((float)iy-(float)height*0.5f)/zoom+S[26];
  float pd=len2(wx-S[0],wy-S[1]);float radial=len2(wx,wy);
  float ground=noise2(wx*0.018f,wy*0.018f);float detail=noise2(wx*0.23f,wy*0.23f);
@@ -546,13 +549,11 @@ __global__ void renderWorld(const float* S,const float* E,const float* P,const i
  float stoneNoise=h2(floorf((wx+(row-floorf(row/2.0f)*2.0f)*28.0f)/57.0f),row);
  float4 paving=color(0.13f+stoneNoise*0.028f,0.151f+stoneNoise*0.033f,0.149f+stoneNoise*0.035f);
  paving=paving*(0.65f+detail*0.43f);paving=blend(color(0.042f,0.052f,0.052f),paving,smooth01(0.0f,1.4f,joint));
- // Coarse value-noise used to punch 125-unit rectangles of dirt through the paving.
- // Missing ground is now whole flagstones and small mud, never a screen-aligned slab.
  float stone=1.0f;
  if(radial>230.0f){
-  float broken=smooth01(0.86f,0.94f,stoneNoise);
-  float mud=smooth01(0.84f,0.96f,noise2(wx*0.05f+3.1f,wy*0.05f));
-  stone=1.0f-fmaxf(broken,mud*0.5f);
+  float broken=smooth01(0.90f,0.97f,stoneNoise);
+  float mud=smooth01(0.88f,0.97f,noise2(wx*0.05f+3.1f,wy*0.05f));
+  stone=1.0f-fmaxf(broken,mud*0.35f);
  }
  c=blend(c,paving,stone);
  float crack=fabsf(noise2(wx*0.055f,wy*0.055f)-0.5f);c=blend(c,color(0.043f,0.050f,0.047f),ink(crack-0.008f,0.007f)*stone*0.65f);
@@ -584,6 +585,13 @@ __global__ void renderWorld(const float* S,const float* E,const float* P,const i
  if(S[18]>0.0f&&pd<120.0f){float a=atan2f(wy-S[1],wx-S[0])-atan2f(S[24],S[23]);float arc=cosf(a+(S[18]/0.24f-0.5f)*1.5f);
   float slash=expf(-fabsf(pd-84.0f)/3.0f)*sat((arc-0.15f)*2.0f)*S[18]*3.8f;c.x+=slash*0.65f;c.y+=slash*0.71f;c.z+=slash*0.64f;}
  if(S[14]>0.0f){float trail=expf(-segment(wx,wy,S[0],S[1],S[0]-S[2]*0.08f,S[1]-S[3]*0.08f)/10.0f)*0.33f;c.x+=trail*0.25f;c.y+=trail*0.50f;c.z+=trail*0.50f;}
+ Pixels[iy*width+ix]=rgba(c);
+}
+__global__ void renderWorld(const float* S,const float* E,const float* P,const int* Tiles,unsigned int* Pixels,int width,int height) {
+ int ix=(int)(blockIdx.x*blockDim.x+threadIdx.x);int iy=(int)(blockIdx.y*blockDim.y+threadIdx.y);if(ix>=width||iy>=height)return;
+ float zoom=(float)height/700.0f;float aa=1.1f/zoom;float time=S[46];float gameTime=S[6];
+ float wx=((float)ix-(float)width*0.5f)/zoom+S[25];float wy=((float)iy-(float)height*0.5f)/zoom+S[26];
+ float4 c=unrgba(Pixels[iy*width+ix]);
  float depth=-100000.0f;float4 front=make_float4(0.0f,0.0f,0.0f,0.0f);
  // Static scenery: carved headstones and broken columns, matching collision geometry.
  float gx=floorf((wx+96.0f)/192.0f);float gy=floorf((wy+96.0f)/192.0f);
@@ -603,13 +611,15 @@ __global__ void renderWorld(const float* S,const float* E,const float* P,const i
   if(stoneSprite.w>0.004f){if(oy+8.0f>=depth){c=blend(c,color(front.x,front.y,front.z),front.w);front=stoneSprite;depth=oy+8.0f;}else c=blend(c,color(stoneSprite.x,stoneSprite.y,stoneSprite.z),stoneSprite.w);}
  }
  int tile=((iy/TILE)*((width+TILE-1)/TILE)+ix/TILE)*TILE_CAP;int count=Tiles[tile];
+ if(count<0||count>TILE_CAP-1)count=0;
+ float shade=0.0f;
  for(int j=0;j<count;j++)if(Tiles[tile+1+j]<1000){
   int b=Tiles[tile+1+j]*ES;float x=wx-E[b];float y=wy-E[b+1];
   if(E[b+4]<0.0f){
    float4 sprite=enemyArt(x,y,E,b,gameTime,aa);
    c=blend(c,color(sprite.x,sprite.y,sprite.z),sprite.w);
   }else{
-   float sh=expf(-len2(x/1.5f,y/0.55f)/12.0f)*0.28f;c=c*(1.0f-sh);
+   shade=fmaxf(shade,expf(-len2(x/1.5f,y/0.55f)/12.0f)*0.28f);
    if(E[b+8]==4.0f){
     float r=E[b+6]==3.0f?36.0f:27.0f;float ring=fabsf(len2(x,y*1.2f)-r)-1.2f;
     c=blend(c,color(0.73f,0.25f,0.12f),ink(ring,aa)*0.55f);
@@ -618,6 +628,7 @@ __global__ void renderWorld(const float* S,const float* E,const float* P,const i
    if(sprite.w>0.004f){if(E[b+1]>=depth){c=blend(c,color(front.x,front.y,front.z),front.w);front=sprite;depth=E[b+1];}else c=blend(c,color(sprite.x,sprite.y,sprite.z),sprite.w);}
   }
  }
+ c=c*(1.0f-shade);
  float pshadow=expf(-len2((wx-S[0])/1.45f,(wy-S[1])/0.55f)/12.0f)*0.38f;c=c*(1.0f-pshadow);
  float4 player=playerArt(wx-S[0],wy-S[1],S,aa);
  if(player.w>0.004f){if(S[1]>=depth){c=blend(c,color(front.x,front.y,front.z),front.w);front=player;depth=S[1];}else c=blend(c,color(player.x,player.y,player.z),player.w);}

@@ -8,8 +8,8 @@ import {Engine} from '../src/engine.js';
 const root=new URL('../',import.meta.url);
 const manifest=JSON.parse(await fs.readFile(new URL('generated/manifest.json',root),'utf8'));
 
-test('all 17 CUDA entry points have matching generated artifacts and source',async()=>{
- assert.equal(manifest.length,17);const common=await fs.readFile(new URL('kernels/common.cu',root),'utf8');
+test('all 18 CUDA entry points have matching generated artifacts and source',async()=>{
+ assert.equal(manifest.length,18);const common=await fs.readFile(new URL('kernels/common.cu',root),'utf8');
  for(const m of manifest){const source=common+'\n'+await fs.readFile(new URL(`kernels/${m.file}.cu`,root),'utf8');const artifact=compile(source,{entry:m.entry,workgroupSize:m.workgroupSize});const saved=JSON.parse(await fs.readFile(new URL(`generated/${m.entry}.json`,root),'utf8'));assert.equal(artifact.wgsl,saved.wgsl,m.entry);assert.deepEqual(artifact.metadata,saved.metadata,m.entry);assert.ok(saved.metadata.bindings.length<=8);assert.ok(saved.metadata.uniformSize<=65536);}
 });
 test('actual host binds, records, resizes, saves and restores against the runtime API contract',async()=>{

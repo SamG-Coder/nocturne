@@ -60,6 +60,7 @@ export class Engine {
         prepare:this.bind('prepareBatch'),forward:this.bind('forwardBatch'),backward:this.bind('backwardBatch'),
         grad:this.bind('computeGradient'),update:this.bind('updateWeights'),infer:this.bind('inferPlayer'),
         tiles:this.bind('buildTiles',{width:this.width,height:this.height},{E:old}),
+        ground:this.bind('renderGround',{width:this.width,height:this.height}),
         render:this.bind('renderWorld',{width:this.width,height:this.height},{E:old}),
         ui:this.bind('renderUI',{width:this.width,height:this.height})
       };
@@ -87,9 +88,11 @@ export class Engine {
   }
   render(batch){
     const b=this.bindings[this.parity];
+    const grid=[Math.ceil(this.width/8),Math.ceil(this.height/8)];
     batch.dispatch(b.tiles,[Math.ceil(Math.ceil(this.width/32)*Math.ceil(this.height/32)/64)])
-      .dispatch(b.render,[Math.ceil(this.width/8),Math.ceil(this.height/8)])
-      .dispatch(b.ui,[Math.ceil(this.width/8),Math.ceil(this.height/8)]);
+      .dispatch(b.ground,grid)
+      .dispatch(b.render,grid)
+      .dispatch(b.ui,grid);
     batch.endPass();
     batch.encoder.copyBufferToTexture({buffer:this.buffers.Pixels.gpuBuffer,bytesPerRow:this.width*4,rowsPerImage:this.height},{texture:this.context.getCurrentTexture()},[this.width,this.height]);
   }

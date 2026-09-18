@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import {compile} from '../vendor/cuda-webshader/compiler/compiler.js';
 const root=new URL('../',import.meta.url);
-const groups={game:{initialise:64,newRun:1,stepWorld:1,stepProjectiles:64,stepEnemies:64,evolvePopulation:1},learning:{recordExperience:1,prepareBatch:32,forwardBatch:32,backwardBatch:32,computeGradient:64,updateWeights:64,inferPlayer:1},render:{buildTiles:64,renderWorld:[8,8,1]},ui:{renderUI:[8,8,1]},audio:{synthAudio:128}};
+const groups={game:{initialise:64,newRun:1,stepWorld:1,stepProjectiles:64,stepEnemies:64,evolvePopulation:1},learning:{recordExperience:1,prepareBatch:32,forwardBatch:32,backwardBatch:32,computeGradient:64,updateWeights:64,inferPlayer:1},render:{buildTiles:64,renderGround:[8,8,1],renderWorld:[8,8,1]},ui:{renderUI:[8,8,1]},audio:{synthAudio:128}};
 const common=await fs.readFile(new URL('kernels/common.cu',root),'utf8');
 await fs.mkdir(new URL('generated/',root),{recursive:true});const manifest=[];
 for(const [file,entries]of Object.entries(groups)){

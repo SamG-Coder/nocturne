@@ -89,7 +89,7 @@ npm test
 npm run pages
 ```
 
-`build` translates all 17 entry points with the included upstream compiler and regenerates `Nocturne.cu`. Editing a `.cu` file therefore needs a rebuild. Opening the game with `?compile=1` instead recompiles the split CUDA sources in the browser. `?width=640`, `960`, `1280` or `1600` selects the initial render width; Q cycles these during play.
+`build` translates all 18 entry points with the included upstream compiler and regenerates `Nocturne.cu`. Editing a `.cu` file therefore needs a rebuild. Opening the game with `?compile=1` instead recompiles the split CUDA sources in the browser. `?width=640`, `960`, `1280` or `1600` selects the initial render width; Q cycles these during play.
 
 `pages` copies the playable static files into `dist/` for an HTTPS host. GitHub Actions on `main` runs `npm test`, packages that folder, and deploys [GitHub Pages](https://samg-coder.github.io/nocturne/).
 
