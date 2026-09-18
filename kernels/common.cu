@@ -11,6 +11,8 @@
 #define BATCH 32
 #define WS 88
 #define PI 3.14159265359f
+#define TILE 32
+#define TILE_CAP 128
 __device__ float sat(float x) { return fminf(1.0f, fmaxf(0.0f, x)); }
 __device__ float mixf(float a, float b, float t) { return a + (b-a)*t; }
 __device__ float len2(float x, float y) { return sqrtf(x*x+y*y); }

@@ -73,7 +73,7 @@ export class Engine {
     for(const key of ['Pixels','Tiles'])if(this.buffers[key])this.runtime.destroyBuffer(this.buffers[key]);
     this.width=this.canvas.width=width;this.height=this.canvas.height=height;
     this.buffers.Pixels=this.runtime.createBuffer(width*height*4,{label:'CUDA final RGBA8 image'});
-    this.buffers.Tiles=this.runtime.createBuffer(Math.ceil(width/32)*Math.ceil(height/32)*64*4,{label:'GPU screen tile list'});
+    this.buffers.Tiles=this.runtime.createBuffer(Math.ceil(width/32)*Math.ceil(height/32)*128*4,{label:'GPU screen tile list'});
     this.context.configure({device:this.device,format:'rgba8unorm',usage:GPUTextureUsage.COPY_DST|GPUTextureUsage.RENDER_ATTACHMENT,alphaMode:'opaque'});
     if(this.bindings)this.buildBindings();
   }

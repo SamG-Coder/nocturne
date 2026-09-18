@@ -15,6 +15,7 @@ function notice(text){const e=document.querySelector('#notice');e.textContent=te
 function fatal(error){if(faulted)return;faulted=true;console.error(error);boot.hidden=false;document.body.classList.remove('ready');status.textContent='The hollow could not open.';detail.textContent=String(error?.message||error);document.querySelector('#retry').hidden=false;}
 document.querySelector('#retry').onclick=()=>location.reload();
 function dimensions(){const w=widths[quality];return [w,Math.round(w*innerHeight/innerWidth)];}
+const touchAim=()=>matchMedia('(pointer:coarse)').matches||(navigator.maxTouchPoints>0&&matchMedia('(hover:none)').matches);
 function fillInput(){
  const input=engine.input;const down=k=>keys.has(k)||pressed.has(k);
  input[0]=Number(down('KeyD')||down('ArrowRight'))-Number(down('KeyA')||down('ArrowLeft'));
@@ -22,6 +23,7 @@ function fillInput(){
  for(const [i,k]of [[6,'Space'],[7,'KeyE'],[8,'Enter'],[9,'Escape'],[11,'KeyT'],[12,'KeyR'],[13,'KeyL'],[14,'KeyH']])input[i]=Number(down(k));
  input[10]=down('Digit1')?1:down('Digit2')?2:down('Digit3')?3:0;
  input[4]=mouseHeld[0]||mousePressed[0];input[5]=mouseHeld[1]||mousePressed[1];
+ input[15]=Number(touchAim());
  engine.writeInput();pressed.clear();mousePressed.fill(0);
 }
 addEventListener('keydown',e=>{
@@ -71,7 +73,7 @@ async function start(){try{
  await engine.init((text,f)=>{status.textContent=text;document.querySelector('#progress').style.width=`${Math.round(f*100)}%`;},{width,height,recompile:params.has('compile'),onError:fatal});
  if(!manual){try{const stored=await loadMemory();if(stored){await engine.restore(stored);detail.textContent='The hollow remembers you.';}}catch(e){notice('Local memory unavailable; this run can still be exported with F6.');}}
  audio.install(await engine.soundTable());
- ready=true;document.body.classList.add('ready');boot.hidden=true;canvas.focus();engine.writeInput();engine.frame(1,true);await engine.runtime.idle();
+ ready=true;document.body.classList.add('ready');boot.hidden=true;canvas.focus();engine.input[15]=Number(touchAim());engine.writeInput();engine.frame(1,true);await engine.runtime.idle();
  // Intentional testing/debugging surface. No JavaScript AI or physics lives here.
  window.nocturne={engine,audio,persist,exportMemory,ready:true};
  requestAnimationFrame(frame);

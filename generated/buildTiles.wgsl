@@ -145,19 +145,19 @@ fn main(
   if ((v_id >= (v_tw * v_th))) {
     return;
   }
-  var v_b: i32 = (v_id * 64i);
+  var v_b: i32 = (v_id * 128i);
   var v_count: i32 = 0i;
-  var v_cx: f32 = f32((((v_id % v_tw) * 32i) + 16i));
-  var v_cy: f32 = f32((((v_id / v_tw) * 32i) + 16i));
+  var v_cx: f32 = f32((((v_id % v_tw) * 32i) + (32i / 2i)));
+  var v_cy: f32 = f32((((v_id / v_tw) * 32i) + (32i / 2i)));
   var v_zoom: f32 = cw_divide_f32(f32(cw_params.p_height), 700.0f);
   {
     var v_i: i32 = 0i;
     loop {
       if (!(v_i < 320i)) { break; }
-      if ((b_E[((v_i * 48i) + 4i)] != 0.0f)) {
+      if ((b_E[((v_i * 48i) + 4i)] > 0.0f)) {
         var v_sx: f32 = (((b_E[(v_i * 48i)] - b_S[25i]) * v_zoom) + (f32(cw_params.p_width) * 0.5f));
         var v_sy: f32 = (((b_E[((v_i * 48i) + 1i)] - b_S[26i]) * v_zoom) + (f32(cw_params.p_height) * 0.5f));
-        if ((((abs((v_sx - v_cx)) < ((60.0f * v_zoom) + 16.0f)) && (abs(((v_sy - (18.0f * v_zoom)) - v_cy)) < ((70.0f * v_zoom) + 16.0f))) && (v_count < (64i - 1i)))) {
+        if ((((abs((v_sx - v_cx)) < ((70.0f * v_zoom) + 16.0f)) && (abs(((v_sy - (18.0f * v_zoom)) - v_cy)) < ((80.0f * v_zoom) + 16.0f))) && (v_count < (128i - 1i)))) {
           b_Tiles[((v_b + 1i) + v_count)] = v_i;
           v_count += i32(1);
         }
@@ -174,7 +174,7 @@ fn main(
       if ((b_P[((v_i * 10i) + 6i)] > 0.0f)) {
         var v_sx: f32 = (((b_P[(v_i * 10i)] - b_S[25i]) * v_zoom) + (f32(cw_params.p_width) * 0.5f));
         var v_sy: f32 = (((b_P[((v_i * 10i) + 1i)] - b_S[26i]) * v_zoom) + (f32(cw_params.p_height) * 0.5f));
-        if ((((abs((v_sx - v_cx)) < ((25.0f * v_zoom) + 16.0f)) && (abs((v_sy - v_cy)) < ((25.0f * v_zoom) + 16.0f))) && (v_count < (64i - 1i)))) {
+        if ((((abs((v_sx - v_cx)) < ((25.0f * v_zoom) + 16.0f)) && (abs((v_sy - v_cy)) < ((25.0f * v_zoom) + 16.0f))) && (v_count < (128i - 1i)))) {
           b_Tiles[((v_b + 1i) + v_count)] = (1000i + v_i);
           v_count += i32(1);
         }
@@ -191,8 +191,25 @@ fn main(
       if (((b_E[((v_i * 48i) + 4i)] > 0.0f) && (b_E[((v_i * 48i) + 33i)] > 0.0f))) {
         var v_sx: f32 = (((b_E[((v_i * 48i) + 29i)] - b_S[25i]) * v_zoom) + (f32(cw_params.p_width) * 0.5f));
         var v_sy: f32 = (((b_E[((v_i * 48i) + 30i)] - b_S[26i]) * v_zoom) + (f32(cw_params.p_height) * 0.5f));
-        if ((((abs((v_sx - v_cx)) < ((22.0f * v_zoom) + 16.0f)) && (abs((v_sy - v_cy)) < ((22.0f * v_zoom) + 16.0f))) && (v_count < (64i - 1i)))) {
+        if ((((abs((v_sx - v_cx)) < ((22.0f * v_zoom) + 16.0f)) && (abs((v_sy - v_cy)) < ((22.0f * v_zoom) + 16.0f))) && (v_count < (128i - 1i)))) {
           b_Tiles[((v_b + 1i) + v_count)] = (2000i + v_i);
+          v_count += i32(1);
+        }
+      }
+      continuing {
+        v_i += i32(1);
+      }
+    }
+  }
+  {
+    var v_i: i32 = 0i;
+    loop {
+      if (!(v_i < 320i)) { break; }
+      if ((b_E[((v_i * 48i) + 4i)] < 0.0f)) {
+        var v_sx: f32 = (((b_E[(v_i * 48i)] - b_S[25i]) * v_zoom) + (f32(cw_params.p_width) * 0.5f));
+        var v_sy: f32 = (((b_E[((v_i * 48i) + 1i)] - b_S[26i]) * v_zoom) + (f32(cw_params.p_height) * 0.5f));
+        if ((((abs((v_sx - v_cx)) < ((70.0f * v_zoom) + 16.0f)) && (abs(((v_sy - (18.0f * v_zoom)) - v_cy)) < ((80.0f * v_zoom) + 16.0f))) && (v_count < (128i - 1i)))) {
+          b_Tiles[((v_b + 1i) + v_count)] = v_i;
           v_count += i32(1);
         }
       }

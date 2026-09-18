@@ -1512,7 +1512,7 @@ fn main(
   var v_mouseX: f32 = (((b_I[2i] + 1.0f) * v_vw) * 0.5f);
   var v_mouseY: f32 = ((b_I[3i] + 1.0f) * 360.0f);
   if ((v_mode != 0i)) {
-    var v_shade: f32 = (((1.0f - f_smooth01(0.0f, 125.0f, v_y, cw_thread, cw_block, cw_grid)) * 0.82f) + (f_smooth01(570.0f, 720.0f, v_y, cw_thread, cw_block, cw_grid) * 0.6f));
+    var v_shade: f32 = (((1.0f - f_smooth01(0.0f, 58.0f, v_y, cw_thread, cw_block, cw_grid)) * 0.38f) + (f_smooth01(668.0f, 720.0f, v_y, cw_thread, cw_block, cw_grid) * 0.32f));
     v_c = f_blend(v_c, f_color(0.016f, 0.02f, 0.022f, cw_thread, cw_block, cw_grid), v_shade, cw_thread, cw_block, cw_grid);
     v_c = f_label(v_c, v_x, v_y, 28.0f, 25.0f, 10i, 1.4f, v_gold, cw_thread, cw_block, cw_grid);
     v_c = f_number(v_c, v_x, v_y, 28.0f, 44.0f, i32(b_S[4i]), 3i, 2.0f, v_ivory, cw_thread, cw_block, cw_grid);

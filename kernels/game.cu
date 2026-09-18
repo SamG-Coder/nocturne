@@ -15,7 +15,7 @@ __global__ void initialise(float* S,float* W,float* M,float* V,float* G,float* B
 __global__ void newRun(float* S,int seed) {
  if(threadIdx.x!=0 || blockIdx.x!=0) return;
  S[4]=100.0f;S[5]=100.0f;S[10]=1.0f;S[11]=14.0f;S[23]=1.0f;
- S[31]=1.0f;S[32]=20.0f;S[33]=1.0f;S[34]=1.0f;S[35]=1.0f;S[36]=85.0f;
+ S[32]=20.0f;S[33]=1.0f;S[34]=1.0f;S[35]=1.0f;S[36]=85.0f;
  S[45]=1.0f;S[48]=(float)seed;S[49]=1.0f;
 }
 __global__ void stepWorld(float* S,float* E,const float* I,float* G,float aspect,float dt) {
@@ -31,11 +31,12 @@ __global__ void stepWorld(float* S,float* E,const float* I,float* G,float aspect
  bool learning=I[13]>0.5f && S[73]<0.5f;
  S[68]=I[8];S[69]=I[9];S[71]=I[11];S[72]=I[12];S[73]=I[13];
  if(I[14]>0.5f&&S[74]<0.5f)S[47]=1.0f-S[47];S[74]=I[14];
+ if(S[76]<0.5f){S[31]=I[15]>0.5f?1.0f:0.0f;S[76]=1.0f;}
  if((mode==0 && start)||((mode==4||mode==5)&&(start||restart))) {
-  float seed=S[48]+79.0f;float learn=S[45];float anim=S[46];
+  float seed=S[48]+79.0f;float learn=S[45];float anim=S[46];float autoFire=S[31];
   for(int j=0;j<64;j++) S[j]=0.0f;
   S[48]=seed;S[46]=anim;S[4]=100.0f;S[5]=100.0f;S[10]=1.0f;S[11]=14.0f;S[23]=1.0f;
-  S[31]=1.0f;S[32]=20.0f;S[33]=1.0f;S[34]=1.0f;S[35]=1.0f;S[36]=85.0f;S[45]=learn;
+  S[31]=autoFire;S[32]=20.0f;S[33]=1.0f;S[34]=1.0f;S[35]=1.0f;S[36]=85.0f;S[45]=learn;
   S[8]=1.0f;S[49]=1.0f;return;
  }
  if((pause||(start&&mode==2))&&(mode==1||mode==2)) {S[8]=mode==1?2.0f:1.0f;return;}
@@ -91,7 +92,7 @@ __global__ void stepWorld(float* S,float* E,const float* I,float* G,float aspect
  S[38]=fmaxf(0.0f,S[38]-dt);S[40]=fmaxf(0.0f,S[40]-dt);if(S[40]<=0.0f) S[39]=0.0f;
  float mx=I[0];float my=I[1];float ml=len2(mx,my);if(ml>1.0f){mx/=ml;my/=ml;}
  float ax=I[2]*aspect*350.0f+S[25]-S[0];float ay=I[3]*350.0f+S[26]-S[1];
- if(I[4]<0.5f&&S[31]>0.5f&&alive>0) {ax=nx;ay=ny;}
+ if(I[4]<0.5f&&I[15]>0.5f&&alive>0) {ax=nx;ay=ny;}
  float al=fmaxf(0.01f,len2(ax,ay));S[23]=ax/al;S[24]=ay/al;
  if(I[6]>0.5f&&S[13]<=0.0f) {S[14]=0.18f;S[13]=2.1f;S[57]+=1.0f;S[59]=ml<0.1f?S[23]:mx;S[60]=ml<0.1f?S[24]:my;}
  if(S[14]>0.0f){mx=S[59];my=S[60];}

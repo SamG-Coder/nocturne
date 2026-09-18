@@ -30,7 +30,7 @@ On macOS/Linux, `./start.sh` starts the same server. To select another port: `no
 | Enter / click | Begin; Enter starts a new night after death or victory. |
 | WASD / arrows | Move. |
 | Mouse + left button | Aim and fire manually. |
-| T | Toggle automatic firing/targeting; enabled initially. Holding the left button overrides automatic targeting. |
+| T | Toggle automatic firing. Off on desktop; on for touch devices. Aim follows the mouse on desktop. Touch devices aim at the nearest enemy unless you are holding a pointer. |
 | Right button | Scythe sweep. |
 | Space | Directional dash, including a forward dash from a standing start. |
 | E | Expanding ward; damages and knocks back enemies. |

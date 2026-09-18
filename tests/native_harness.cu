@@ -48,7 +48,7 @@ struct Simulation {
  }
  void start(){I[8]=1;tick();I[8]=0;tick();}
  void render(const std::string&file,int width=1280,int height=720){
-  std::vector<int>tiles(((width+31)/32)*((height+31)/32)*64);std::vector<unsigned int>pixels(width*height);
+  std::vector<int>tiles(((width+31)/32)*((height+31)/32)*TILE_CAP);std::vector<unsigned int>pixels(width*height);
   dispatch1(((width+31)/32)*((height+31)/32),[&]{buildTiles(S.data(),E.data(),P.data(),tiles.data(),width,height);});
   dispatch2(width,height,[&]{renderWorld(S.data(),E.data(),P.data(),tiles.data(),pixels.data(),width,height);});
   dispatch2(width,height,[&]{renderUI(S.data(),Brain.data(),I.data(),pixels.data(),width,height);});

@@ -14,16 +14,16 @@ All entries below are float32 except Tiles (int32) and Pixels (uint32). The comp
 | R | 4096 × 28 | Experience ring. |
 | Work | 32 × 88 | Batch activations and backpropagation workspace. |
 | Grad | 610 | Reduced, clipped batch gradient. |
-| Tiles | ceil(width/32) × ceil(height/32) × 64 | Bounded screen-space candidate lists. |
+| Tiles | ceil(width/32) × ceil(height/32) × 128 | Bounded screen-space candidate lists. |
 | Pixels | width × height | Completed image, little-endian RGBA8. |
 
 ## S
 
-0–3: position x/y and measured velocity x/y. 4/5: health/max health. 6/7: active time/tick. 8: mode (0 title, 1 active, 2 pause, 3 relic, 4 dead, 5 dawn). 9–12: souls, level, next-level requirement, kills. 13–22: dash/fire/scythe/ward cooldowns, active durations and serials. 23/24: aim direction. 25/26: camera. 27: live count. 28–30: spawn sequence/start/quota. 31: autofire. 32–37: damage, fire-rate multiplier, movement multiplier, pellet count, soul reach and blade count. 38–40: hurt invulnerability/combo. 44: fire intent this step. 45: learning enabled. 46: UI time. 47: field notes visible. 48: seed. 49: reset flag. 50: wave. 51: actual simulation-step flag. 52–58: audio event counters. 59/60: locked dash direction. 61: prior enemy feedback was consumed. 64 and 68–74: previous button values for CUDA edge detection.
+0–3: position x/y and measured velocity x/y. 4/5: health/max health. 6/7: active time/tick. 8: mode (0 title, 1 active, 2 pause, 3 relic, 4 dead, 5 dawn). 9–12: souls, level, next-level requirement, kills. 13–22: dash/fire/scythe/ward cooldowns, active durations and serials. 23/24: aim direction. 25/26: camera. 27: live count. 28–30: spawn sequence/start/quota. 31: autofire (off on desktop, on for coarse/touch pointers; T toggles). 32–37: damage, fire-rate multiplier, movement multiplier, pellet count, soul reach and blade count. 38–40: hurt invulnerability/combo. 44: fire intent this step. 45: learning enabled. 46: UI time. 47: field notes visible. 48: seed. 49: reset flag. 50: wave. 51: actual simulation-step flag. 52–58: audio event counters. 59/60: locked dash direction. 61: prior enemy feedback was consumed. 64 and 68–74: previous button values for CUDA edge detection. 76: autofire preference has been initialized from the host.
 
 ## I
 
-0/1: movement axes. 2/3: normalized canvas cursor [-1,1]. 4/5: left/right buttons. 6: dash. 7: ward. 8: Enter. 9: Escape. 10: relic choice 1–3, zero otherwise. 11: autofire toggle. 12: restart. 13: learning toggle. 14: field-notes toggle. Browser presentation controls do not enter the game simulation.
+0/1: movement axes. 2/3: normalized canvas cursor [-1,1]. 4/5: left/right buttons. 6: dash. 7: ward. 8: Enter. 9: Escape. 10: relic choice 1–3, zero otherwise. 11: autofire toggle. 12: restart. 13: learning toggle. 14: field-notes toggle. 15: coarse/touch pointer (auto-aim only when this is set). Browser presentation controls do not enter the game simulation.
 
 ## Enemy record
 

@@ -153,10 +153,21 @@ fn main(
     b_S[47i] = (1.0f - b_S[47i]);
   }
   b_S[74i] = b_I[14i];
+  if ((b_S[76i] < 0.5f)) {
+    var cw_tmp_0: f32;
+    if ((b_I[15i] > 0.5f)) {
+      cw_tmp_0 = 1.0f;
+    } else {
+      cw_tmp_0 = 0.0f;
+    }
+    b_S[31i] = cw_tmp_0;
+    b_S[76i] = 1.0f;
+  }
   if ((((v_mode == 0i) && v_start) || (((v_mode == 4i) || (v_mode == 5i)) && (v_start || v_restart)))) {
     var v_seed: f32 = (b_S[48i] + 79.0f);
     var v_learn: f32 = b_S[45i];
     var v_anim: f32 = b_S[46i];
+    var v_autoFire: f32 = b_S[31i];
     {
       var v_j: i32 = 0i;
       loop {
@@ -174,7 +185,7 @@ fn main(
     b_S[10i] = 1.0f;
     b_S[11i] = 14.0f;
     b_S[23i] = 1.0f;
-    b_S[31i] = 1.0f;
+    b_S[31i] = v_autoFire;
     b_S[32i] = 20.0f;
     b_S[33i] = 1.0f;
     b_S[34i] = 1.0f;
@@ -186,13 +197,13 @@ fn main(
     return;
   }
   if (((v_pause || (v_start && (v_mode == 2i))) && ((v_mode == 1i) || (v_mode == 2i)))) {
-    var cw_tmp_0: f32;
+    var cw_tmp_1: f32;
     if ((v_mode == 1i)) {
-      cw_tmp_0 = 2.0f;
+      cw_tmp_1 = 2.0f;
     } else {
-      cw_tmp_0 = 1.0f;
+      cw_tmp_1 = 1.0f;
     }
-    b_S[8i] = cw_tmp_0;
+    b_S[8i] = cw_tmp_1;
     return;
   }
   if (v_learning) {
@@ -211,34 +222,34 @@ fn main(
         var v_k: i32 = 0i;
         loop {
           if (!(v_k < 3i)) { break; }
-          var cw_tmp_1: f32;
-          if ((v_vw < 850.0f)) {
-            cw_tmp_1 = (v_vw * 0.5f);
-          } else {
-            cw_tmp_1 = ((v_vw * 0.5f) + (f32((v_k - 1i)) * 280.0f));
-          }
-          var v_bx: f32 = cw_tmp_1;
           var cw_tmp_2: f32;
           if ((v_vw < 850.0f)) {
-            cw_tmp_2 = (282.0f + (f32(v_k) * 133.0f));
+            cw_tmp_2 = (v_vw * 0.5f);
           } else {
-            cw_tmp_2 = 390.0f;
+            cw_tmp_2 = ((v_vw * 0.5f) + (f32((v_k - 1i)) * 280.0f));
           }
-          var v_by: f32 = cw_tmp_2;
+          var v_bx: f32 = cw_tmp_2;
           var cw_tmp_3: f32;
           if ((v_vw < 850.0f)) {
-            cw_tmp_3 = (v_vw - 40.0f);
+            cw_tmp_3 = (282.0f + (f32(v_k) * 133.0f));
           } else {
-            cw_tmp_3 = 254.0f;
+            cw_tmp_3 = 390.0f;
           }
-          var v_ww: f32 = cw_tmp_3;
+          var v_by: f32 = cw_tmp_3;
           var cw_tmp_4: f32;
           if ((v_vw < 850.0f)) {
-            cw_tmp_4 = 116.0f;
+            cw_tmp_4 = (v_vw - 40.0f);
           } else {
-            cw_tmp_4 = 234.0f;
+            cw_tmp_4 = 254.0f;
           }
-          var v_hh: f32 = cw_tmp_4;
+          var v_ww: f32 = cw_tmp_4;
+          var cw_tmp_5: f32;
+          if ((v_vw < 850.0f)) {
+            cw_tmp_5 = 116.0f;
+          } else {
+            cw_tmp_5 = 234.0f;
+          }
+          var v_hh: f32 = cw_tmp_5;
           if (((abs((v_mx - v_bx)) < (v_ww * 0.5f)) && (abs((v_my - v_by)) < (v_hh * 0.5f)))) {
             v_choice = v_k;
           }
@@ -258,8 +269,8 @@ fn main(
       }
       if ((v_upgrade == 2i)) {
         b_S[5i] = (b_S[5i] + 25.0f);
-        let cw_argument_index_5 = 5i;
-        b_S[4i] = min(b_S[cw_argument_index_5], (b_S[4i] + 55.0f));
+        let cw_argument_index_6 = 5i;
+        b_S[4i] = min(b_S[cw_argument_index_6], (b_S[4i] + 55.0f));
       }
       if ((v_upgrade == 3i)) {
         b_S[35i] = min(5.0f, (b_S[35i] + 1.0f));
@@ -272,8 +283,8 @@ fn main(
       if ((v_upgrade == 5i)) {
         b_S[34i] = min(1.55f, (b_S[34i] * 1.08f));
         b_S[20i] = 0.0f;
-        let cw_argument_index_6 = 5i;
-        b_S[4i] = min(b_S[cw_argument_index_6], (b_S[4i] + 25.0f));
+        let cw_argument_index_7 = 5i;
+        b_S[4i] = min(b_S[cw_argument_index_7], (b_S[4i] + 25.0f));
       }
       b_S[8i] = 1.0f;
     }
@@ -314,13 +325,13 @@ fn main(
         b_S[39i] = (b_S[39i] + 1.0f);
         b_S[40i] = 2.5f;
         var v_gb: i32 = (i32(b_E[(v_b + 13i)]) * 16i);
-        let cw_argument_index_7 = (v_b + 23i);
-        let cw_argument_index_8 = (v_b + 22i);
-        let cw_argument_index_9 = (v_b + 7i);
-        var v_fit: f32 = (((min(b_E[cw_argument_index_7], 30.0f) * 0.07f) + (min(b_E[cw_argument_index_8], 12.0f) * 0.07f)) + (min(b_E[cw_argument_index_9], 25.0f) * 0.012f));
+        let cw_argument_index_8 = (v_b + 23i);
+        let cw_argument_index_9 = (v_b + 22i);
+        let cw_argument_index_10 = (v_b + 7i);
+        var v_fit: f32 = (((min(b_E[cw_argument_index_8], 30.0f) * 0.07f) + (min(b_E[cw_argument_index_9], 12.0f) * 0.07f)) + (min(b_E[cw_argument_index_10], 25.0f) * 0.012f));
         if ((b_E[(v_b + 24i)] == b_G[(v_gb + 8i)])) {
-          let cw_argument_index_10 = (v_gb + 6i);
-          b_G[(v_gb + 6i)] = f_mixf(b_G[cw_argument_index_10], v_fit, 0.18f, cw_thread, cw_block, cw_grid);
+          let cw_argument_index_11 = (v_gb + 6i);
+          b_G[(v_gb + 6i)] = f_mixf(b_G[cw_argument_index_11], v_fit, 0.18f, cw_thread, cw_block, cw_grid);
           b_G[(v_gb + 7i)] = (b_G[(v_gb + 7i)] + 1.0f);
           var v_cause: i32 = i32(b_E[(v_b + 46i)]);
           if (((v_cause >= 1i) && (v_cause <= 4i))) {
@@ -335,8 +346,8 @@ fn main(
   }
   b_S[27i] = f32(v_alive);
   if ((((v_damage > 0.0f) && (b_S[38i] <= 0.0f)) && (b_S[14i] <= 0.0f))) {
-    let cw_argument_index_11 = 4i;
-    var v_accepted: f32 = min(min(22.0f, v_damage), b_S[cw_argument_index_11]);
+    let cw_argument_index_12 = 4i;
+    var v_accepted: f32 = min(min(22.0f, v_damage), b_S[cw_argument_index_12]);
     b_S[4i] = (b_S[4i] - v_accepted);
     b_S[38i] = 0.55f;
     b_S[54i] = (b_S[54i] + 1.0f);
@@ -396,7 +407,7 @@ fn main(
   }
   var v_ax: f32 = ((((b_I[2i] * cw_params.p_aspect) * 350.0f) + b_S[25i]) - b_S[0i]);
   var v_ay: f32 = (((b_I[3i] * 350.0f) + b_S[26i]) - b_S[1i]);
-  if ((((b_I[4i] < 0.5f) && (b_S[31i] > 0.5f)) && (v_alive > 0i))) {
+  if ((((b_I[4i] < 0.5f) && (b_I[15i] > 0.5f)) && (v_alive > 0i))) {
     v_ax = v_nx;
     v_ay = v_ny;
   }
@@ -407,20 +418,20 @@ fn main(
     b_S[14i] = 0.18f;
     b_S[13i] = 2.1f;
     b_S[57i] = (b_S[57i] + 1.0f);
-    var cw_tmp_12: f32;
-    if ((v_ml < 0.1f)) {
-      cw_tmp_12 = b_S[23i];
-    } else {
-      cw_tmp_12 = v_mx;
-    }
-    b_S[59i] = cw_tmp_12;
     var cw_tmp_13: f32;
     if ((v_ml < 0.1f)) {
-      cw_tmp_13 = b_S[24i];
+      cw_tmp_13 = b_S[23i];
     } else {
-      cw_tmp_13 = v_my;
+      cw_tmp_13 = v_mx;
     }
-    b_S[60i] = cw_tmp_13;
+    b_S[59i] = cw_tmp_13;
+    var cw_tmp_14: f32;
+    if ((v_ml < 0.1f)) {
+      cw_tmp_14 = b_S[24i];
+    } else {
+      cw_tmp_14 = v_my;
+    }
+    b_S[60i] = cw_tmp_14;
   }
   if ((b_S[14i] > 0.0f)) {
     v_mx = b_S[59i];
@@ -436,26 +447,26 @@ fn main(
   var v_oldY: f32 = b_S[1i];
   var v_px: f32 = (b_S[0i] + (b_S[2i] * cw_params.p_dt));
   var v_py: f32 = (b_S[1i] + (b_S[3i] * cw_params.p_dt));
-  let cw_argument_index_14 = 1i;
-  if ((f_obstacle(v_px, b_S[cw_argument_index_14], cw_thread, cw_block, cw_grid) > 10.0f)) {
+  let cw_argument_index_15 = 1i;
+  if ((f_obstacle(v_px, b_S[cw_argument_index_15], cw_thread, cw_block, cw_grid) > 10.0f)) {
     b_S[0i] = v_px;
   }
-  let cw_argument_index_15 = 0i;
-  if ((f_obstacle(b_S[cw_argument_index_15], v_py, cw_thread, cw_block, cw_grid) > 10.0f)) {
+  let cw_argument_index_16 = 0i;
+  if ((f_obstacle(b_S[cw_argument_index_16], v_py, cw_thread, cw_block, cw_grid) > 10.0f)) {
     b_S[1i] = v_py;
   }
-  let cw_argument_index_16 = 0i;
-  b_S[0i] = max((-1600.0f), min(1600.0f, b_S[cw_argument_index_16]));
-  let cw_argument_index_17 = 1i;
-  b_S[1i] = max((-1600.0f), min(1600.0f, b_S[cw_argument_index_17]));
+  let cw_argument_index_17 = 0i;
+  b_S[0i] = max((-1600.0f), min(1600.0f, b_S[cw_argument_index_17]));
+  let cw_argument_index_18 = 1i;
+  b_S[1i] = max((-1600.0f), min(1600.0f, b_S[cw_argument_index_18]));
   b_S[2i] = cw_divide_f32((b_S[0i] - v_oldX), cw_params.p_dt);
   b_S[3i] = cw_divide_f32((b_S[1i] - v_oldY), cw_params.p_dt);
-  let cw_argument_index_18 = 25i;
-  let cw_argument_index_19 = 0i;
-  b_S[25i] = f_mixf(b_S[cw_argument_index_18], b_S[cw_argument_index_19], (1.0f - exp(((-cw_params.p_dt) * 9.0f))), cw_thread, cw_block, cw_grid);
-  let cw_argument_index_20 = 26i;
-  let cw_argument_index_21 = 1i;
-  b_S[26i] = f_mixf(b_S[cw_argument_index_20], b_S[cw_argument_index_21], (1.0f - exp(((-cw_params.p_dt) * 9.0f))), cw_thread, cw_block, cw_grid);
+  let cw_argument_index_19 = 25i;
+  let cw_argument_index_20 = 0i;
+  b_S[25i] = f_mixf(b_S[cw_argument_index_19], b_S[cw_argument_index_20], (1.0f - exp(((-cw_params.p_dt) * 9.0f))), cw_thread, cw_block, cw_grid);
+  let cw_argument_index_21 = 26i;
+  let cw_argument_index_22 = 1i;
+  b_S[26i] = f_mixf(b_S[cw_argument_index_21], b_S[cw_argument_index_22], (1.0f - exp(((-cw_params.p_dt) * 9.0f))), cw_thread, cw_block, cw_grid);
   if (((((b_I[4i] > 0.5f) || (b_S[31i] > 0.5f)) && (b_S[15i] <= 0.0f)) && ((v_alive > 0i) || (b_I[4i] > 0.5f)))) {
     b_S[15i] = cw_divide_f32(0.28f, b_S[33i]);
     b_S[16i] = (b_S[16i] + 1.0f);
@@ -475,13 +486,13 @@ fn main(
   }
   if (((i32(b_S[7i]) % 18i) == 0i)) {
     var v_wanted: i32 = (18i + i32((b_S[6i] * 0.28f)));
-    var cw_tmp_22: i32;
+    var cw_tmp_23: i32;
     if ((v_wanted > 230i)) {
-      cw_tmp_22 = 230i;
+      cw_tmp_23 = 230i;
     } else {
-      cw_tmp_22 = v_wanted;
+      cw_tmp_23 = v_wanted;
     }
-    v_wanted = cw_tmp_22;
+    v_wanted = cw_tmp_23;
     if ((v_alive < v_wanted)) {
       b_S[29i] = b_S[28i];
       b_S[30i] = min(5.0f, f32((v_wanted - v_alive)));

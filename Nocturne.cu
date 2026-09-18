@@ -15,6 +15,8 @@
 #define BATCH 32
 #define WS 88
 #define PI 3.14159265359f
+#define TILE 32
+#define TILE_CAP 128
 __device__ float sat(float x) { return fminf(1.0f, fmaxf(0.0f, x)); }
 __device__ float mixf(float a, float b, float t) { return a + (b-a)*t; }
 __device__ float len2(float x, float y) { return sqrtf(x*x+y*y); }
@@ -68,7 +70,7 @@ __global__ void initialise(float* S,float* W,float* M,float* V,float* G,float* B
 __global__ void newRun(float* S,int seed) {
  if(threadIdx.x!=0 || blockIdx.x!=0) return;
  S[4]=100.0f;S[5]=100.0f;S[10]=1.0f;S[11]=14.0f;S[23]=1.0f;
- S[31]=1.0f;S[32]=20.0f;S[33]=1.0f;S[34]=1.0f;S[35]=1.0f;S[36]=85.0f;
+ S[32]=20.0f;S[33]=1.0f;S[34]=1.0f;S[35]=1.0f;S[36]=85.0f;
  S[45]=1.0f;S[48]=(float)seed;S[49]=1.0f;
 }
 __global__ void stepWorld(float* S,float* E,const float* I,float* G,float aspect,float dt) {
@@ -84,11 +86,12 @@ __global__ void stepWorld(float* S,float* E,const float* I,float* G,float aspect
  bool learning=I[13]>0.5f && S[73]<0.5f;
  S[68]=I[8];S[69]=I[9];S[71]=I[11];S[72]=I[12];S[73]=I[13];
  if(I[14]>0.5f&&S[74]<0.5f)S[47]=1.0f-S[47];S[74]=I[14];
+ if(S[76]<0.5f){S[31]=I[15]>0.5f?1.0f:0.0f;S[76]=1.0f;}
  if((mode==0 && start)||((mode==4||mode==5)&&(start||restart))) {
-  float seed=S[48]+79.0f;float learn=S[45];float anim=S[46];
+  float seed=S[48]+79.0f;float learn=S[45];float anim=S[46];float autoFire=S[31];
   for(int j=0;j<64;j++) S[j]=0.0f;
   S[48]=seed;S[46]=anim;S[4]=100.0f;S[5]=100.0f;S[10]=1.0f;S[11]=14.0f;S[23]=1.0f;
-  S[31]=1.0f;S[32]=20.0f;S[33]=1.0f;S[34]=1.0f;S[35]=1.0f;S[36]=85.0f;S[45]=learn;
+  S[31]=autoFire;S[32]=20.0f;S[33]=1.0f;S[34]=1.0f;S[35]=1.0f;S[36]=85.0f;S[45]=learn;
   S[8]=1.0f;S[49]=1.0f;return;
  }
  if((pause||(start&&mode==2))&&(mode==1||mode==2)) {S[8]=mode==1?2.0f:1.0f;return;}
@@ -144,7 +147,7 @@ __global__ void stepWorld(float* S,float* E,const float* I,float* G,float aspect
  S[38]=fmaxf(0.0f,S[38]-dt);S[40]=fmaxf(0.0f,S[40]-dt);if(S[40]<=0.0f) S[39]=0.0f;
  float mx=I[0];float my=I[1];float ml=len2(mx,my);if(ml>1.0f){mx/=ml;my/=ml;}
  float ax=I[2]*aspect*350.0f+S[25]-S[0];float ay=I[3]*350.0f+S[26]-S[1];
- if(I[4]<0.5f&&S[31]>0.5f&&alive>0) {ax=nx;ay=ny;}
+ if(I[4]<0.5f&&I[15]>0.5f&&alive>0) {ax=nx;ay=ny;}
  float al=fmaxf(0.01f,len2(ax,ay));S[23]=ax/al;S[24]=ay/al;
  if(I[6]>0.5f&&S[13]<=0.0f) {S[14]=0.18f;S[13]=2.1f;S[57]+=1.0f;S[59]=ml<0.1f?S[23]:mx;S[60]=ml<0.1f?S[24]:my;}
  if(S[14]>0.0f){mx=S[59];my=S[60];}
@@ -392,8 +395,6 @@ __global__ void inferPlayer(const float* S,float* R,const float* W,float* Brain)
 
 // ===== RENDER =====
 // Every visible world pixel is computed here. No raster scene, imported sprites or Three.js.
-#define TILE 32
-#define TILE_CAP 64
 __device__ float4 paint(float4 base,float4 pigment,float mask) {
  // Straight-alpha source-over. Sprite buffers start transparent, so RGB must
  // not be attenuated twice before the sprite is composited onto the world.
@@ -419,11 +420,6 @@ __device__ float4 enemyArt(float x,float y,const float* E,int b,float time,float
    c=paint(c,color(0.87f,0.74f,0.42f),ink(gem,aa));c=paint(c,color(1.0f,0.95f,0.74f),ink(gem+2.0f,aa));
   }
   return c;
- }
- // Telegraphs are on the ground, before the creature silhouette.
- if(E[b+8]==4.0f) {
-  float r=type==3?36.0f:27.0f;float ring=fabsf(len2(x,y*1.2f)-r)-1.2f;
-  c=paint(c,color(0.73f,0.25f,0.12f),ink(ring,aa)*0.8f);
  }
  float yy=y+bob;float shade=0.75f+0.16f*noise2(x*0.48f,yy*0.48f)+0.12f*sat(-x/15.0f);
  if(type==1) {
@@ -518,10 +514,11 @@ __device__ float4 playerArt(float x,float y,const float* S,float aa) {
 }
 __global__ void buildTiles(const float* S,const float* E,const float* P,int* Tiles,int width,int height) {
  int id=(int)(blockIdx.x*blockDim.x+threadIdx.x);int tw=(width+31)/32;int th=(height+31)/32;if(id>=tw*th)return;
- int b=id*TILE_CAP;int count=0;float cx=(float)(id%tw*32+16);float cy=(float)(id/tw*32+16);float zoom=(float)height/700.0f;
- for(int i=0;i<ENEMIES;i++)if(E[i*ES+4]!=0.0f){
+ int b=id*TILE_CAP;int count=0;float cx=(float)(id%tw*TILE+TILE/2);float cy=(float)(id/tw*TILE+TILE/2);float zoom=(float)height/700.0f;
+ // Living units first so a crowded tile drops corpses, not bodies.
+ for(int i=0;i<ENEMIES;i++)if(E[i*ES+4]>0.0f){
   float sx=(E[i*ES]-S[25])*zoom+(float)width*0.5f;float sy=(E[i*ES+1]-S[26])*zoom+(float)height*0.5f;
-  if(fabsf(sx-cx)<60.0f*zoom+16.0f&&fabsf(sy-18.0f*zoom-cy)<70.0f*zoom+16.0f&&count<TILE_CAP-1){Tiles[b+1+count]=i;count++;}
+  if(fabsf(sx-cx)<70.0f*zoom+16.0f&&fabsf(sy-18.0f*zoom-cy)<80.0f*zoom+16.0f&&count<TILE_CAP-1){Tiles[b+1+count]=i;count++;}
  }
  for(int i=0;i<BULLETS;i++)if(P[i*BS+6]>0.0f){
   float sx=(P[i*BS]-S[25])*zoom+(float)width*0.5f;float sy=(P[i*BS+1]-S[26])*zoom+(float)height*0.5f;
@@ -530,6 +527,10 @@ __global__ void buildTiles(const float* S,const float* E,const float* P,int* Til
  for(int i=0;i<ENEMIES;i++)if(E[i*ES+4]>0.0f&&E[i*ES+33]>0.0f){
   float sx=(E[i*ES+29]-S[25])*zoom+(float)width*0.5f;float sy=(E[i*ES+30]-S[26])*zoom+(float)height*0.5f;
   if(fabsf(sx-cx)<22.0f*zoom+16.0f&&fabsf(sy-cy)<22.0f*zoom+16.0f&&count<TILE_CAP-1){Tiles[b+1+count]=2000+i;count++;}
+ }
+ for(int i=0;i<ENEMIES;i++)if(E[i*ES+4]<0.0f){
+  float sx=(E[i*ES]-S[25])*zoom+(float)width*0.5f;float sy=(E[i*ES+1]-S[26])*zoom+(float)height*0.5f;
+  if(fabsf(sx-cx)<70.0f*zoom+16.0f&&fabsf(sy-18.0f*zoom-cy)<80.0f*zoom+16.0f&&count<TILE_CAP-1){Tiles[b+1+count]=i;count++;}
  }
  Tiles[b]=count;
 }
@@ -591,23 +592,44 @@ __global__ void renderWorld(const float* S,const float* E,const float* P,const i
   float border=ink(fabsf(d+2.0f)-0.7f,aa);prop=blend(prop,color(0.40f,0.41f,0.34f),border*0.6f);
   float cut=fminf(segment(x,y,0.0f,-34.0f,0.0f,-13.0f),segment(x,y,-6.0f,-27.0f,6.0f,-27.0f));prop=blend(prop,color(0.11f,0.13f,0.12f),ink(cut-1.0f,aa));
   float base=boxd(x,y,19.0f,5.0f);if(base<d){d=base;prop=color(0.20f,0.23f,0.21f);}
-  if(d<aa){front=make_float4(prop.x,prop.y,prop.z,ink(d,aa));depth=oy;}
+  // Sort by the southern foot so the runner is not buried under the headstone.
+  float4 stoneSprite=make_float4(prop.x,prop.y,prop.z,ink(d,aa));
+  if(stoneSprite.w>0.004f){if(oy+8.0f>=depth){c=blend(c,color(front.x,front.y,front.z),front.w);front=stoneSprite;depth=oy+8.0f;}else c=blend(c,color(stoneSprite.x,stoneSprite.y,stoneSprite.z),stoneSprite.w);}
  }
- int tile=((iy/32)*((width+31)/32)+ix/32)*TILE_CAP;int count=Tiles[tile];
+ int tile=((iy/TILE)*((width+TILE-1)/TILE)+ix/TILE)*TILE_CAP;int count=Tiles[tile];
  for(int j=0;j<count;j++)if(Tiles[tile+1+j]<1000){
   int b=Tiles[tile+1+j]*ES;float x=wx-E[b];float y=wy-E[b+1];
-  float sh=expf(-len2(x/1.5f,y/0.55f)/12.0f)*0.35f;c=c*(1.0f-sh);
-  float4 sprite=enemyArt(x,y,E,b,gameTime,aa);
-  if(sprite.w>0.01f&&E[b+1]>=depth){front=sprite;depth=E[b+1];}
+  if(E[b+4]<0.0f){
+   float4 sprite=enemyArt(x,y,E,b,gameTime,aa);
+   c=blend(c,color(sprite.x,sprite.y,sprite.z),sprite.w);
+  }else{
+   float sh=expf(-len2(x/1.5f,y/0.55f)/12.0f)*0.28f;c=c*(1.0f-sh);
+   if(E[b+8]==4.0f){
+    float r=E[b+6]==3.0f?36.0f:27.0f;float ring=fabsf(len2(x,y*1.2f)-r)-1.2f;
+    c=blend(c,color(0.73f,0.25f,0.12f),ink(ring,aa)*0.55f);
+   }
+   float4 sprite=enemyArt(x,y,E,b,gameTime,aa);
+   if(sprite.w>0.004f){if(E[b+1]>=depth){c=blend(c,color(front.x,front.y,front.z),front.w);front=sprite;depth=E[b+1];}else c=blend(c,color(sprite.x,sprite.y,sprite.z),sprite.w);}
+  }
  }
- float pshadow=expf(-len2((wx-S[0])/1.45f,(wy-S[1])/0.55f)/12.0f)*0.45f;c=c*(1.0f-pshadow);
+ float pshadow=expf(-len2((wx-S[0])/1.45f,(wy-S[1])/0.55f)/12.0f)*0.38f;c=c*(1.0f-pshadow);
  float4 player=playerArt(wx-S[0],wy-S[1],S,aa);
- if(player.w>0.01f&&S[1]>=depth){front=player;depth=S[1];}
+ if(player.w>0.004f){if(S[1]>=depth){c=blend(c,color(front.x,front.y,front.z),front.w);front=player;depth=S[1];}else c=blend(c,color(player.x,player.y,player.z),player.w);}
+ // Braziers behind the current winner stay on the ground; the winner is applied next.
+ for(int k=0;k<4;k++) {
+  float fx=k%2==0?-214.0f:214.0f;float fy=k<2?-144.0f:144.0f;float x=wx-fx;float y=wy-fy;
+  if(fabsf(x)<23.0f&&fabsf(y)<55.0f&&fy+10.0f<depth){
+   c=blend(c,color(0.23f,0.22f,0.17f),ink(boxd(x,y+9.0f,3.0f,11.0f),aa));
+   c=blend(c,color(0.38f,0.31f,0.20f),ink(boxd(x,y+22.0f,8.0f,3.0f),aa));
+   float fire=len2((x-sinf(time*8.0f+y*0.25f)*1.2f)/0.65f,(y+31.0f)*0.8f)-7.0f;
+   c=blend(c,color(0.94f,0.46f,0.13f),ink(fire,aa));c=blend(c,color(1.0f,0.86f,0.46f),ink(fire+3.0f,aa));
+  }
+ }
  c=blend(c,color(front.x,front.y,front.z),front.w);
  // Tiny brazier geometry, flame and sparks; emissive shapes remain readable in shadow.
  for(int k=0;k<4;k++) {
   float fx=k%2==0?-214.0f:214.0f;float fy=k<2?-144.0f:144.0f;float x=wx-fx;float y=wy-fy;
-  if(fabsf(x)<23.0f&&fabsf(y)<55.0f&&fy>=depth){
+  if(fabsf(x)<23.0f&&fabsf(y)<55.0f&&fy+10.0f>=depth){
    c=blend(c,color(0.23f,0.22f,0.17f),ink(boxd(x,y+9.0f,3.0f,11.0f),aa));
    c=blend(c,color(0.38f,0.31f,0.20f),ink(boxd(x,y+22.0f,8.0f,3.0f),aa));
    float fire=len2((x-sinf(time*8.0f+y*0.25f)*1.2f)/0.65f,(y+31.0f)*0.8f)-7.0f;
@@ -630,9 +652,10 @@ __global__ void renderWorld(const float* S,const float* E,const float* P,const i
  // Slow ground mist, rain and restrained grain; intentionally no neon debug palette.
  float mist=noise2(wx*0.006f+time*0.025f,wy*0.008f-time*0.012f);float fog=smooth01(0.46f,0.91f,mist)*0.13f;
  c=blend(c,color(0.34f,0.38f,0.37f),fog);
- float rainX=wx*0.10f+wy*0.025f;float rainY=wy*0.07f+time*10.0f;float cell=h2(floorf(rainX),floorf(rainY));
- float rain=ink(fabsf(frac(rainX)-0.5f)-0.035f,0.035f)*(1.0f-frac(rainY))*0.10f;
- if(cell>0.83f)c=c+color(rain*0.8f,rain,rain);
+ // Screen/world Y increases downward, so subtracting time moves drops down the frame.
+ float rainX=wx*0.13f-wy*0.035f;float rainY=wy*0.04f-time*16.0f;float cell=h2(floorf(rainX),floorf(rainY));
+ float rain=ink(fabsf(frac(rainX)-0.5f)-0.018f,0.028f)*powf(1.0f-frac(rainY),1.65f)*0.14f;
+ if(cell>0.78f)c=c+color(rain*0.85f,rain,rain);
  float nx=((float)ix/(float)width-0.5f)*2.0f;float ny=((float)iy/(float)height-0.5f)*2.0f;float vignette=1.0f-0.25f*powf(sat((nx*nx+ny*ny)*0.48f),1.3f);
  c=c*vignette;float grain=(h2((float)ix+floorf(time*12.0f),(float)iy)-0.5f)*0.013f;c.x+=grain;c.y+=grain;c.z+=grain;
  if(S[4]<35.0f&&S[8]==1.0f){float danger=(1.0f-S[4]/35.0f)*sat((nx*nx+ny*ny)*0.45f);c=blend(c,color(0.30f,0.038f,0.027f),danger*0.45f);}
@@ -705,7 +728,7 @@ __global__ void renderUI(const float* S,const float* Brain,const float* I,unsign
  float4 c=unrgba(Pixels[iy*width+ix]);float4 gold=color(0.68f,0.58f,0.39f);float4 ivory=color(0.85f,0.84f,0.75f);float4 dim=color(0.42f,0.46f,0.43f);
  int mode=(int)S[8];float mouseX=(I[2]+1.0f)*vw*0.5f;float mouseY=(I[3]+1.0f)*360.0f;
  if(mode!=0){
-  float shade=(1.0f-smooth01(0.0f,125.0f,y))*0.82f+smooth01(570.0f,720.0f,y)*0.6f;
+  float shade=(1.0f-smooth01(0.0f,58.0f,y))*0.38f+smooth01(668.0f,720.0f,y)*0.32f;
   c=blend(c,color(0.016f,0.020f,0.022f),shade);
   c=label(c,x,y,28.0f,25.0f,10,1.4f,gold);
   c=number(c,x,y,28.0f,44.0f,(int)S[4],3,2.0f,ivory);

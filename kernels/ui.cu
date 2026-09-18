@@ -63,7 +63,7 @@ __global__ void renderUI(const float* S,const float* Brain,const float* I,unsign
  float4 c=unrgba(Pixels[iy*width+ix]);float4 gold=color(0.68f,0.58f,0.39f);float4 ivory=color(0.85f,0.84f,0.75f);float4 dim=color(0.42f,0.46f,0.43f);
  int mode=(int)S[8];float mouseX=(I[2]+1.0f)*vw*0.5f;float mouseY=(I[3]+1.0f)*360.0f;
  if(mode!=0){
-  float shade=(1.0f-smooth01(0.0f,125.0f,y))*0.82f+smooth01(570.0f,720.0f,y)*0.6f;
+  float shade=(1.0f-smooth01(0.0f,58.0f,y))*0.38f+smooth01(668.0f,720.0f,y)*0.32f;
   c=blend(c,color(0.016f,0.020f,0.022f),shade);
   c=label(c,x,y,28.0f,25.0f,10,1.4f,gold);
   c=number(c,x,y,28.0f,44.0f,(int)S[4],3,2.0f,ivory);
